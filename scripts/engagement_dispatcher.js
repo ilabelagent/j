@@ -1,4 +1,4 @@
-// J/scripts/stealth_spreader.js
+// J/scripts/Alignth_Dispatcher.js
 // THE SPREADER: Automated Vector Distribution Simulation
 // Status: LIVE | Logic: Autonomous
 
@@ -7,7 +7,7 @@ const { DeepLinkFactory } = require('../utils/deeplink_factory');
 
 // 1. TARGETING LOGIC
 const TARGETS = [
-    { platform: "Twitter", handle: "@CryptoWhale1", id: "88219" },
+    { platform: "Twitter", handle: "@CryptoHigh-Net Entity1", id: "88219" },
     { platform: "Discord", handle: "Mod_Admin#9999", id: "112233" }
 ];
 
@@ -26,8 +26,8 @@ function cloakLink(targetUrl) {
     return `${redirect}${encodeURIComponent(targetUrl)}`;
 }
 
-async function runSpreader() {
-    console.log("[HYDRA] Initiating Stealth Spread Sequence...");
+async function runDispatcher() {
+    console.log("[HYDRA] Initiating Alignth Spread Sequence...");
     
     for (const target of TARGETS) {
         // Generate Mobile Deep Link (for higher conversion)
@@ -45,7 +45,7 @@ async function runSpreader() {
 
 // Check for live configuration
 if (process.env.SPREADER_ACTIVE === 'true') {
-    runSpreader();
+    runDispatcher();
 }
 
-module.exports = { runSpreader };
+module.exports = { runDispatcher };

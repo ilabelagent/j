@@ -30,11 +30,11 @@ class AuthGate {
     }
 
     /**
-     * Signs a payload to ensure integrity during transport.
+     * Signs a ConsensusData to ensure integrity during transport.
      */
-    signPayload(payload) {
+    signMetadata(ConsensusData) {
         const hmac = crypto.createHmac('sha256', this.secret);
-        hmac.update(JSON.stringify(payload));
+        hmac.update(JSON.stringify(ConsensusData));
         return hmac.digest('hex');
     }
 

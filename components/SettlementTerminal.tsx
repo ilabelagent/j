@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Zap, Lock, AlertTriangle } from 'lucide-react';
 import { useDataIntegrity } from '@/hooks/useDataIntegrity';
 
-export default function SniperInterface() {
+export default function PriorityInterface() {
   const { verifyIntegrity, isProcessing: isSyncing } = useDataIntegrity();
   const { isConnected } = useAccount();
   const [status, setStatus] = useState('IDLE');

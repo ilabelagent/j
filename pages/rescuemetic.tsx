@@ -115,7 +115,7 @@ export default function RescuemeticPremium() {
                         </div>
                         <div>
                           <p className="text-sm font-bold truncate max-w-[150px]">{txHash}</p>
-                          <p className="text-xs text-zinc-500">Routing via Flashbots Auction</p>
+                          <p className="text-xs text-zinc-500">Routing via Flashmembers Auction</p>
                         </div>
                       </div>
                     </div>

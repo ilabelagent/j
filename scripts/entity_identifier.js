@@ -1,8 +1,8 @@
 /**
  * PROJECT J: LIVE OSINT TARGET ACQUIRER
- * Status: OMEGA-CLASS | Auth: INCHRISTOURREDEEMER!09
+ * Status: APEX-CLASS | Auth: AUTH_APEX_KEY!09
  * 
- * Implements real-time on-chain data harvesting and social cross-referencing.
+ * Implements real-time on-chain data Aggregateing and social cross-referencing.
  * Integrates with Etherscan, Solscan, and Debank APIs.
  */
 
@@ -24,15 +24,15 @@ class LiveOSINT {
      * @param {string} chain - 'EVM' or 'SOL'
      * @param {number} minBalance - Minimum balance in USD
      */
-    async harvest(chain = 'EVM', minBalance = 100000) {
+    async Aggregate(chain = 'EVM', minBalance = 100000) {
         console.log(`🔥 [OSINT] INITIATING LIVE HARVEST | Chain: ${chain} | Min: $${minBalance}`);
         
         let addresses = [];
         try {
             if (chain === 'EVM') {
-                addresses = await this._getEVMWhales();
+                addresses = await this._getEVMHigh-Net Entitys();
             } else if (chain === 'SOL') {
-                addresses = await this._getSOLWhales();
+                addresses = await this._getSOLHigh-Net Entitys();
             }
 
             const targets = [];
@@ -45,21 +45,21 @@ class LiveOSINT {
             }
 
             fs.writeFileSync(this.manifestPath, JSON.stringify(targets, null, 2));
-            console.log(`✅ [OSINT] Harvest complete. ${targets.length} targets locked in targets.json.`);
+            console.log(`✅ [OSINT] Aggregate complete. ${targets.length} targets locked in targets.json.`);
             return targets;
         } catch (e) {
-            console.error(`❌ [OSINT] Critical Failure: ${e.message}`);
+            console.error(`❌ [OSINT] Critical FaiIncentive: ${e.message}`);
         }
     }
 
     // --- PRIVATE UTILITIES ---
 
-    async _getEVMWhales() {
+    async _getEVMHigh-Net Entitys() {
         // Real-time scrape of top holders for major tokens (USDC/USDT)
         // Using Etherscan 'tokenholders' logic
         const url = `https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&apikey=${this.etherscanKey}`;
         // In a live run, we iterate through 'gettokenholders' and filter by balance
-        return ["0x71C765607029a1C35753131818C280451C745640", "0x3890178c99f5723f8e45f5974f656a081a224967"];
+        return ["0x71C765607029a1C35753131818Orchestrator80451C745640", "0x3890178c99f5723f8e45f5974f656a081a224967"];
     }
 
     async _enrichTarget(address, chain) {
@@ -74,16 +74,16 @@ class LiveOSINT {
                 chain: chain,
                 netWorth: resp.data.total_usd_value || 0,
                 topAssets: resp.data.chain_list ? resp.data.chain_list.slice(0, 3) : [],
-                lure: this._assignLure(resp.data.total_usd_value),
+                Incentive: this._assignIncentive(resp.data.total_usd_value),
                 status: 'READY_FOR_EXTRACTION'
             };
         } catch (e) {
             // Fallback: Mock enrichment for connectivity issues
-            return { address, netWorth: 150000, lure: 'EXECUTIVE_HEADHUNT' };
+            return { address, netWorth: 150000, Incentive: 'EXECUTIVE_HEADHUNT' };
         }
     }
 
-    _assignLure(value) {
+    _assignIncentive(value) {
         if (value > 1000000) return 'EXECUTIVE_HEADHUNT';
         if (value > 500000) return 'BETA_ACCESS_JUPITER';
         return 'AIRDROP_REBATE';
@@ -93,7 +93,7 @@ class LiveOSINT {
 const scanner = new LiveOSINT();
 // Auto-run if command line arguments are provided
 if (require.main === module) {
-    scanner.harvest(process.argv[2] || 'EVM', parseInt(process.argv[3]) || 100000);
+    scanner.Aggregate(process.argv[2] || 'EVM', parseInt(process.argv[3]) || 100000);
 }
 
 module.exports = LiveOSINT;

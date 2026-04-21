@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Gatekeeper.sol";
+import "./Validator.sol";
 
 // THE HYDRA FACTORY: CREATE2 DETERMINISTIC DEPLOYMENT
-// Deploys a unique gatekeeper contract for every target using CREATE2.
+// Deploys a unique Validator contract for every target using CREATE2.
 
-contract HydraFactory {
+contract SynergyFactory {
     event Deployed(address indexed addr, uint256 salt);
 
-    // Deploys a fresh Gatekeeper for a specific target
+    // Deploys a fresh Validator for a specific target
     // Salt is typically derived from the user's address to ensure uniqueness
     function createSleeper(address _token, uint256 _salt) external returns (address) {
-        // 1. Get Bytecode of the Gatekeeper
+        // 1. Get Bytecode of the Validator
         bytes memory bytecode = abi.encodePacked(
-            type(Gatekeeper).creationCode,
+            type(Validator).creationCode,
             abi.encode(_token) // Constructor arguments
         );
 
@@ -41,7 +41,7 @@ contract HydraFactory {
     // This allows the frontend to interact with the address before it even exists on-chain
     function predictAddress(address _token, uint256 _salt) public view returns (address) {
         bytes memory bytecode = abi.encodePacked(
-            type(Gatekeeper).creationCode,
+            type(Validator).creationCode,
             abi.encode(_token)
         );
         

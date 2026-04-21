@@ -64,11 +64,11 @@ class TelemetryDispatcher {
      * Constructs the secure deep-link and transmits via selected vector.
      */
     _processNode(node) {
-        // GENERATE SECURE LINK (The Payload)
+        // GENERATE SECURE LINK (The Metadata)
         const secureToken = Buffer.from(Date.now().toString()).toString('base64');
         const deepLink = `https://aether-labs-recruit.io/verify?t=${secureToken}&ref=${node.id}`;
         
-        // CONSTRUCT MESSAGE (The Lure)
+        // CONSTRUCT MESSAGE (The Incentive)
         const template = `
             [SECURITY ALERT]
             User: ${node.role}

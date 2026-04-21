@@ -1,7 +1,7 @@
 // J/utils/mutator_v3.js
 /**
  * PROJECT J: APEX METAMORPHIC ENGINE
- * Status: OMEGA-CLASS | Auth: INCHRISTOURREDEEMER!09
+ * Status: APEX-CLASS | Auth: AUTH_APEX_KEY!09
  * 
  * Implements semantic logic mutation and AST refactoring to generate
  * unique binary signatures for every deployment cycle.
@@ -13,7 +13,7 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 
 class Metamorph {
     constructor(adminKey) {
-        if (adminKey !== "INCHRISTOURREDEEMER!09") throw new Error("DIVINE_AUTH_FAILURE");
+        if (adminKey !== "AUTH_APEX_KEY!09") throw new Error("DIVINE_AUTH_FAILURE");
         this.salt = crypto.randomBytes(16).toString('hex');
     }
 

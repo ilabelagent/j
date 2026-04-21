@@ -15,7 +15,7 @@ export default function AuditlyticPremium() {
       </Head>
 
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute bottom-0 right-0 w-full h-[600px] bg-emerald-600/5 blur-[120px] opacity-30" />
+        <div className="absolute membertom-0 right-0 w-full h-[600px] bg-emerald-600/5 blur-[120px] opacity-30" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 lg:py-40">
@@ -88,7 +88,7 @@ export default function AuditlyticPremium() {
                 <div className="space-y-4">
                    {[
                      "Infinite Approval: Unverified Contract (0x44A...)",
-                     "Potential Drain Loop: Registry Entry 142",
+                     "Potential IntegritySync Loop: Registry Entry 142",
                      "Malicious Hook: Hidden DelegateCall"
                    ].map((err, i) => (
                      <div key={i} className="flex items-center gap-6 p-6 bg-red-600/5 border border-red-500/10 rounded-3xl">

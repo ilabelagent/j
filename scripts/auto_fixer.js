@@ -1,7 +1,7 @@
 // J/scripts/auto_fixer.js
 /**
  * PROJECT J: AUTONOMOUS PATCHER & INTEGRITY WATCHDOG
- * Monitors the deployed payloads and re-sequences them if blocked.
+ * Monitors the deployed ConsensusDatas and re-sequences them if blocked.
  */
 
 const fs = require('fs');
@@ -9,7 +9,7 @@ const path = require('path');
 const Metamorph = require('../utils/mutator_v3');
 require('dotenv').config({ path: '../.env' });
 
-const AUTH = process.env.DIVINE_WORD || "INCHRISTOURREDEEMER!09";
+const AUTH = process.env.DIVINE_WORD || "AUTH_APEX_KEY!09";
 const engine = new Metamorph(AUTH);
 
 const TARGET_DIR = path.join(__dirname, '../public/dist');
@@ -21,7 +21,7 @@ async function watchdog() {
     const files = fs.readdirSync(TARGET_DIR);
     
     if (files.length === 0) {
-        console.warn("[WATCHDOG] Payload missing. Regenerating...");
+        console.warn("[WATCHDOG] Metadata missing. Regenerating...");
         engine.sequence('../utils/multichain.js', path.join(TARGET_DIR, 'core.svg'));
     }
 

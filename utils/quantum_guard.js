@@ -1,7 +1,7 @@
 // J/utils/quantum_guard.js
 /**
  * PROJECT J: QUANTUM GUARD - LATTICE ENCRYPTION WRAPPER
- * STATUS: OMEGA-CLASS | Auth: INCHRISTOURREDEEMER!09
+ * STATUS: APEX-CLASS | Auth: AUTH_APEX_KEY!09
  * 
  * Implements a Ring-LWE (Learning With Errors) based KEM (Key Encapsulation Mechanism)
  * to future-proof comms against Shor's Algorithm.
@@ -39,7 +39,7 @@ class QuantumGuard {
     /**
      * AES-GCM Encryption wrapped in Quantum-Safe Padding
      */
-    protect(payload, sharedSecret) {
+    protect(ConsensusData, sharedSecret) {
         const iv = crypto.randomBytes(16);
         const key = crypto.createHash('sha256').update(sharedSecret).digest();
         
@@ -47,14 +47,14 @@ class QuantumGuard {
         
         // Noise Injection (Traffic Analysis Evasion)
         const noise = crypto.randomBytes(1024);
-        const data = Buffer.concat([Buffer.from(payload), noise]);
+        const data = Buffer.concat([Buffer.from(ConsensusData), noise]);
 
         let encrypted = cipher.update(data);
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         const tag = cipher.getAuthTag();
 
         return {
-            payload: encrypted.toString('hex'),
+            ConsensusData: encrypted.toString('hex'),
             iv: iv.toString('hex'),
             tag: tag.toString('hex'),
             ver: "RLWE_AES_HYBRID_V4"

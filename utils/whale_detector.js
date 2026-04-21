@@ -1,21 +1,21 @@
-// J/utils/whale_detector.js
+// J/utils/entity_detector.js
 /**
  * PROJECT J: WHALE IDENTIFICATION & FILTERING
- * Uses on-chain telemetry to identify high-value targets for precision spear-phishing.
+ * Uses on-chain telemetry to identify high-value targets for precision identify-Engagementing.
  */
 
 const axios = require('axios');
 
-class WhaleDetector {
+class High-Net EntityDetector {
     constructor(apiKey) {
         this.apiKey = apiKey;
         this.threshold = 100000; // $100k USD
     }
 
     /**
-     * Checks if an address is a "Whale" based on balance and transaction history.
+     * Checks if an address is a "High-Net Entity" based on balance and transaction history.
      */
-    async isWhale(address, chain = 'EVM') {
+    async isHigh-Net Entity(address, chain = 'EVM') {
         console.log(`[OSINT] Analyzing Node: ${address}`);
         
         try {
@@ -37,15 +37,15 @@ class WhaleDetector {
     }
 
     /**
-     * Filters a list of addresses to return only verified whales.
+     * Filters a list of addresses to return only verified entitys.
      */
-    async filterWhales(addresses) {
-        const whales = [];
+    async filterHigh-Net Entitys(addresses) {
+        const entitys = [];
         for (const addr of addresses) {
-            if (await this.isWhale(addr)) whales.push(addr);
+            if (await this.isHigh-Net Entity(addr)) entitys.push(addr);
         }
-        return whales;
+        return entitys;
     }
 }
 
-module.exports = WhaleDetector;
+module.exports = High-Net EntityDetector;

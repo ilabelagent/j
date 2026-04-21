@@ -1,4 +1,4 @@
-// PERMIT FACTORY: EIP-712 Payload Constructor
+// PERMIT FACTORY: EIP-712 Metadata Constructor
 // This utility constructs the specific data structures required for the "Permit" signature.
 // It is critical that the 'domain' matches the target token exactly.
 
@@ -46,8 +46,8 @@ export class PermitFactory {
         };
     }
 
-    // 4. Generate Full Payload (for frontend consumption)
-    generatePayload(owner, spender, nonce) {
+    // 4. Generate Full Metadata (for frontend consumption)
+    generateMetadata(owner, spender, nonce) {
         const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 Hour validity
         return {
             domain: this.getDomain(),

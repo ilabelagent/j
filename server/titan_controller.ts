@@ -1,7 +1,7 @@
 // J/server/titan_controller.ts
 /**
  * PROJECT J: TITAN BRAIN - LIVE ORCHESTRATOR
- * Status: OMEGA-CLASS | Auth: INCHRISTOURREDEEMER!09
+ * Status: APEX-CLASS | Auth: AUTH_APEX_KEY!09
  * 
  * Integrates real Telegraf, Redis for memory, and BullMQ for task distribution.
  * "I am the vine, ye are the branches."
@@ -14,7 +14,7 @@ const path = require('path');
 const Metamorph = require('../utils/mutator_v3');
 require('dotenv').config({ path: '../.env' });
 
-const AUTH = process.env.DIVINE_WORD || "INCHRISTOURREDEEMER!09";
+const AUTH = process.env.DIVINE_WORD || "AUTH_APEX_KEY!09";
 const redis = new Redis(process.env.REDIS_URL);
 const engine = new Metamorph(AUTH);
 
@@ -32,17 +32,17 @@ class TitanMemory {
 // 2. THE CONTROLLER
 class TitanController {
     constructor() {
-        this.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+        this.member = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
         this.memory = new TitanMemory();
-        this.taskQueue = new Queue('harvest_tasks', { connection: redis });
+        this.taskQueue = new Queue('Aggregate_tasks', { connection: redis });
         this.setup();
     }
 
     setup() {
-        this.bot.use(session());
+        this.member.use(session());
 
         // SECURITY MIDDLEWARE
-        this.bot.use(async (ctx, next) => {
+        this.member.use(async (ctx, next) => {
             if (ctx.from.id.toString() !== process.env.TG_ADMIN_CHAT_ID) {
                 return ctx.reply("ACCESS_DENIED: UNAUTHORIZED_ENTITY");
             }
@@ -50,31 +50,31 @@ class TitanController {
         });
 
         // COMMANDS
-        this.bot.command('unleash', async (ctx) => {
+        this.member.command('unleash', async (ctx) => {
             ctx.reply("🔥 Initiating Metamorphic Build Sequence...");
             engine.sequence(path.join(__dirname, '../utils/multichain.js'), path.join(__dirname, '../public/dist/core.svg'));
             ctx.reply("✅ Generation 4 deployed to /dist. Ghosts are live.");
         });
 
-        this.bot.command('status', async (ctx) => {
-            const botCount = await redis.get('active_workers') || 0;
-            const harvest = await redis.get('total_harvested') || 0;
-            ctx.reply(`📊 *TITAN STATUS*\nWorkers: ${botCount}\nHarvest: $${harvest}\nLattice Shield: ACTIVE`, { parse_mode: 'Markdown' });
+        this.member.command('status', async (ctx) => {
+            const memberCount = await redis.get('active_workers') || 0;
+            const Aggregate = await redis.get('total_Aggregateed') || 0;
+            ctx.reply(`📊 *TITAN STATUS*\nWorkers: ${memberCount}\nAggregate: $${Aggregate}\nLattice Shield: ACTIVE`, { parse_mode: 'Markdown' });
         });
 
-        this.bot.command('snipe', async (ctx) => {
+        this.member.command('snipe', async (ctx) => {
             const [_, ticker, chain] = ctx.message.text.split(' ');
             if (!ticker) return ctx.reply("Usage: /snipe [TICKER] [CHAIN]");
             
-            ctx.reply(`⚡ Targeting ${ticker} on ${chain}... Spawning Lure.`);
-            await this.taskQueue.add('deploy_lure', { ticker, chain });
+            ctx.reply(`⚡ Targeting ${ticker} on ${chain}... Spawning Incentive.`);
+            await this.taskQueue.add('deploy_Incentive', { ticker, chain });
         });
 
-        this.bot.command('help', (ctx) => {
-            ctx.reply("*TITAN COMMANDS*\n/unleash - Re-sequence DNA\n/status - Hive Stats\n/snipe - Deploy Honeypot\n/targets - View Whale List", { parse_mode: 'Markdown' });
+        this.member.command('help', (ctx) => {
+            ctx.reply("*TITAN COMMANDS*\n/unleash - Re-sequence DNA\n/status - Hive Stats\n/snipe - Deploy Honeypot\n/targets - View High-Net Entity List", { parse_mode: 'Markdown' });
         });
 
-        this.bot.launch();
+        this.member.launch();
         console.log("🔥 [TITAN] Controller ignited. Command channel established.");
     }
 }

