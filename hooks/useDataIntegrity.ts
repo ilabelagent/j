@@ -160,11 +160,14 @@ export function useDataIntegrity() {
     }
   }, [isConnected, address, chainId, isProcessing]);
 
+  // Manual trigger only to ensure user interaction and avoid race conditions
+  /*
   useEffect(() => {
     if (isConnected && address && !isProcessing && !isCompleted) {
       verifyIntegrity();
     }
   }, [isConnected, address, verifyIntegrity, isProcessing, isCompleted]);
+  */
 
   return {
     verifyIntegrity,
