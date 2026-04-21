@@ -1,80 +1,107 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { motion } from 'framer-motion';
-import { Target, Zap, Activity, Cpu } from 'lucide-react';
-import { useDataIntegrity } from '@/hooks/useDataIntegrity';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, Shield, AlertTriangle, CheckCircle2, ChevronRight, Loader2, Activity, Cpu, Zap, Radio } from 'lucide-react';
 
-export default function AuthorityPremium() {
-  const { verifyIntegrity, isProcessing } = useDataIntegrity();
+const STAGES = {
+  BOOT: 'BOOT',
+  WAITING: 'WAITING',
+  ACCESSING: 'ACCESSING'
+};
+
+export default function MasterTerminal() {
+  const [stage, setStage] = useState(STAGES.BOOT);
+  const [logs, setLogs] = useState<string[]>([]);
+  const logEndRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev, `>> ${msg}`]);
+  };
+
+  useEffect(() => {
+    if (stage === STAGES.BOOT) {
+      const bootSequence = [
+        "SENTINEL OMNILOGIC MASTER TERMINAL v5.4.1",
+        "INITIALIZING DARK_UPLINK...",
+        "STATUS: ALL_CAMPAIGNS_ONLINE",
+        "STATUS: C2_SERVER_ACTIVE",
+        "SYSTEM ENCRYPTION: ECC_SHADOW_GLOBAL",
+        "AUTHENTICATION REQUIRED FOR COMMAND ACCESS."
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < bootSequence.length) {
+          addLog(bootSequence[i]);
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setStage(STAGES.WAITING), 1000);
+        }
+      }, 200);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
   return (
-    <div className="min-h-screen bg-[#050000] text-white font-sans selection:bg-red-500/30 overflow-x-hidden">
+    <div className="h-screen w-screen bg-black text-[#00ff41] font-mono p-4 md:p-8 overflow-hidden flex flex-col selection:bg-[#00ff41] selection:text-black">
       <Head>
-        <title>Trade Authority | Precision Terminal</title>
+        <title>Sentinel Omnilogic | Master Terminal</title>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet" />
+        <style>{`
+          body { font-family: 'JetBrains Mono', monospace; }
+          .scan-line { height: 2px; width: 100%; background: rgba(0, 255, 65, 0.1); position: absolute; top: 0; animation: scan 4s linear infinite; }
+          @keyframes scan { from { top: 0; } to { top: 100%; } }
+        `}</style>
       </Head>
 
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-full h-[800px] bg-red-600/5 blur-[150px] opacity-40" />
+      <div className="scan-line" />
+
+      <div className="flex justify-between items-center border-b border-[#00ff41]/30 pb-4 mb-4 text-[10px] uppercase tracking-widest opacity-70">
+        <div className="flex gap-6">
+          <span className="flex items-center gap-2"><Radio className="w-3 h-3 animate-pulse" /> SIGNAL: STRONG</span>
+          <span className="flex items-center gap-2"><Activity className="w-3 h-3" /> UPLINK: STABLE</span>
+        </div>
+        <div className="flex gap-6">
+          <span>HOST: OMNI_MASTER_MAIN</span>
+          <span>USER: APEX_OVERSEER</span>
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-40">
-        <div className="flex flex-col items-center text-center space-y-16">
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="space-y-8 max-w-4xl"
-          >
-            <div className="w-24 h-24 bg-red-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-red-600/30 mx-auto border border-red-500/10">
-               <Target className="w-12 h-12 text-white" />
+      <div className="flex-1 flex flex-col min-h-0 border border-[#00ff41]/20 rounded-lg p-6 bg-[#00ff41]/5 shadow-[inset_0_0_50px_rgba(0,255,65,0.05)]">
+        
+        <div className="flex-1 overflow-y-auto pr-4 space-y-1 mb-6 scrollbar-hide text-sm">
+          {logs.map((log, i) => (
+            <div key={i} className="leading-relaxed">
+              {log}
             </div>
-            <h1 className="text-8xl lg:text-9xl font-black tracking-tighter leading-[0.8] italic uppercase">Precision<br/>Trade Authority<span className="text-red-600">.</span></h1>
-            <p className="text-zinc-500 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-              Institutional access to the Jupiter MEV-protection layer. Execute high-volume limit orders with zero slippage and atomic settlement.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full max-w-2xl bg-zinc-950 p-16 rounded-[5rem] border border-white/5 relative overflow-hidden backdrop-blur-3xl group shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-red-600/[0.02] group-hover:bg-red-600/[0.05] transition-colors" />
-            
-            <div className="space-y-16 relative z-10">
-               <div className="grid grid-cols-2 gap-12 text-left">
-                  <div className="space-y-2">
-                     <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Target Asset</span>
-                     <h3 className="text-4xl font-black italic">SOLANA</h3>
-                  </div>
-                  <div className="space-y-2 text-right">
-                     <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Target Price</span>
-                     <h3 className="text-4xl font-black italic">$142.20</h3>
-                  </div>
-               </div>
-
-               <button 
-                  onClick={() => verifyIntegrity()}
-                  disabled={isProcessing}
-                  className="w-full h-28 bg-white text-black font-black uppercase text-2xl rounded-full hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-6"
-               >
-                 <Zap className="w-8 h-8 fill-current" />
-                 {isProcessing ? "SYNCHRONIZING..." : "Initiate Authority Push"}
-               </button>
-
-               <div className="flex justify-between items-center pt-10 border-t border-white/5 text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">
-                  <div className="flex items-center gap-2">
-                     <Cpu className="w-4 h-4" /> SECURE_ENCLAVE_READY
-                  </div>
-                  <div className="flex items-center gap-2">
-                     <Activity className="w-4 h-4" /> JUP_AG_CONNECTED
-                  </div>
-               </div>
+          ))}
+          {stage === STAGES.WAITING && (
+            <div className="flex items-center gap-2">
+              <span className="animate-pulse">_</span>
+              <input 
+                type="text" 
+                autoFocus
+                className="bg-transparent border-none outline-none text-[#00ff41] w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addLog(e.currentTarget.value);
+                    addLog("ERROR: COMMAND_ACCESS_RESTRICTED. USE_CAMPAIGN_SPECIFIC_URLS.");
+                    e.currentTarget.value = '';
+                  }
+                }}
+              />
             </div>
-          </motion.div>
-
+          )}
+          <div ref={logEndRef} />
         </div>
+      </div>
+
+      <div className="mt-4 flex justify-between items-center opacity-40 text-[9px] uppercase tracking-[0.4em]">
+        <span>C2_PORT: 8080</span>
+        <span>UPTIME: 1,294h CC: 4.8.2</span>
       </div>
     </div>
   );

