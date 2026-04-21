@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT J | APEX TERMINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #05070a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); }
+        .pixel-grid { background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(59, 130, 246, 0.03); animation: scanline 8s linear infinite; pointer-events: none; }
+    </style>
+</head>
+<body class="pixel-grid min-h-screen p-6 lg:p-12 overflow-x-hidden">
+    <div class="scanline"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 relative z-10">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/5">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="h-2 w-2 rounded-full bg-blue-500 animate-ping"></div>
+                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mono">Uplink: OMEGA-PREDATOR</span>
+                </div>
+                <h1 class="text-6xl font-black tracking-tighter text-white italic">OMNILOGIC<span class="text-blue-500">.</span></h1>
+                <p class="text-slate-500 mt-2 font-medium tracking-wide italic uppercase text-sm">Unified Virtual Oversight Orchestration Terminal</p>
+            </div>
+            <div class="flex items-center gap-4 bg-zinc-900/50 p-2 rounded-2xl border border-white/5">
+                <div class="px-4 py-2 text-center border-r border-white/5">
+                    <p class="text-[9px] text-slate-500 font-bold uppercase">System Time</p>
+                    <p id="clock" class="text-sm font-mono text-white font-bold">06:04:22</p>
+                </div>
+                <div class="px-4 py-2 text-center">
+                    <p class="text-[9px] text-slate-500 font-bold uppercase">Data Port</p>
+                    <p class="text-sm font-mono text-blue-400 font-bold">8080</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar: Navigation & Stats -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="glass rounded-3xl p-6 glow-blue">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">Synchronization Units</h3>
+                    <nav class="space-y-2">
+                        <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold">
+                            <span>Overview</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]"></div>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 text-slate-400 font-bold transition-all">
+                            <span>Campaigns</span>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 text-slate-400 font-bold transition-all">
+                            <span>Deployment</span>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 text-slate-400 font-bold transition-all">
+                            <span>Nodes</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="glass rounded-3xl p-6 border-red-500/10">
+                    <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-6">Integrity Matrix</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <span class="text-[10px] font-bold text-slate-500">SYNC RATE</span>
+                            <span class="text-sm font-mono text-white">4.2 GB/s</span>
+                        </div>
+                        <div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 w-[72%] shadow-[0_0_10px_#3b82f6]"></div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-[10px] font-bold text-slate-500">CONNECTED NODES</span>
+                            <span class="text-sm font-mono text-white">12,024</span>
+                        </div>
+                        <div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-600 w-[45%] shadow-[0_0_10px_#3b82f6]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Control View -->
+            <div class="lg:col-span-6 space-y-8">
+                <div class="glass rounded-[2.5rem] p-8 lg:p-12 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-24 h-24 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+
+                    <h2 class="text-4xl font-black text-white mb-6 italic tracking-tight">GLOBAL SYNC ORCHESTRATION</h2>
+                    <p class="text-slate-400 mb-10 leading-relaxed font-medium">Initiates the metamorphic build pipeline, rotates infrastructure, and activates all synchronization vectors (V4-V10).</p>
+                    
+                    <button onclick="unleash()" class="relative group/btn w-full h-20 rounded-3xl overflow-hidden shadow-2xl shadow-blue-600/20">
+                        <div class="absolute inset-0 bg-blue-600 group-hover/btn:bg-blue-500 transition-colors"></div>
+                        <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_infinite]"></div>
+                        <span class="relative z-10 text-white font-black italic text-2xl tracking-tighter uppercase">Establish Global Synchronization</span>
+                    </button>
+                    
+                    <div id="status" class="mt-8 p-4 rounded-2xl bg-black/40 border border-white/5 mono text-[10px] text-blue-400/70 hidden">
+                        [SYSTEM] Sequence confirmed. Building ghosts...
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass rounded-3xl p-6 hover:border-blue-500/30 transition-all cursor-pointer">
+                        <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Metamorph v3</h3>
+                        <p class="text-sm font-bold text-white mb-1 italic">Rotate Signal</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Signatures Reset</p>
+                    </div>
+                    <div class="glass rounded-3xl p-6 hover:border-red-500/30 transition-all cursor-pointer">
+                        <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">C2 Controller</h3>
+                        <p class="text-sm font-bold text-white mb-1 italic">Flush Queues</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Exfil Pulse Active</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal/Logs -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="glass rounded-3xl overflow-hidden h-[600px] flex flex-col font-mono text-[10px] glow-blue">
+                    <div class="bg-white/5 p-4 border-b border-white/5 flex items-center justify-between">
+                        <span class="font-bold text-white uppercase italic">Live Console Feed</span>
+                        <div class="flex gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                        </div>
+                    </div>
+                    <div id="terminal" class="flex-1 p-4 space-y-2 overflow-y-auto no-scrollbar scroll-smooth">
+                        <p class="text-blue-500">[SYSTEM] Connection secure.</p>
+                        <p class="text-slate-500">Waiting for beacon pulse...</p>
+                        <p class="text-emerald-500">🔥 [TITAN] Apex C2 active on port 8080.</p>
+                        <p class="text-slate-500">System Online. Use /help for logic.</p>
+                    </div>
+                    <div class="p-4 border-t border-white/5 bg-black/40">
+                        <div class="flex items-center gap-2">
+                            <span class="text-blue-500">$</span>
+                            <input type="text" class="bg-transparent border-none outline-none flex-1 text-white" placeholder="command_">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                            now.getMinutes().toString().padStart(2, '0') + ":" + 
+                            now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function log(msg, color = 'slate-500') {
+            const term = document.getElementById('terminal');
+            const p = document.createElement('p');
+            p.className = `text-${color}`;
+            p.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        async function unleash() {
+            const status = document.getElementById('status');
+            status.classList.remove('hidden');
+            log('Initiating unleash sequence...', 'blue-400');
+            
+            try {
+                const res = await fetch('/unleash', {
+                    method: 'POST',
+                    headers: { 'x-apex-word': 'INCHRISTOURREDEEMER!09' }
+                });
+                if (res.ok) {
+                    log('🔥 GLOBAL HARVEST INITIATED.', 'emerald-400');
+                    status.innerText = '[SYSTEM] Unleash Successful. Monitoring exfil...';
+                } else {
+                    log('❌ UNLEASH FAILED. CHECK AUTH GATE.', 'red-400');
+                }
+            } catch (e) {
+                log('❌ ERR_CONNECTION_REFUSED', 'red-500');
+            }
+        }
+    </script>
+</body>
+</html>
